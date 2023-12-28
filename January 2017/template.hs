@@ -134,14 +134,10 @@ gain ds@(header, rows) p@(attName, attValues) c@(attName', attValues') = res
     n    = (fromIntegral . length) rows
     res  =  e - sum [let p = (fromIntegral (lookUp v freq)) / n in (p * (entropy (lookUp v lmao) c)) | v <- attValues]     
 bestGainAtt :: AttSelector
-bestGainAtt ds@(header, rows) c@(attName, attValues) = bestGainAtt' (header \\ [c]) 0.0 ("DUMMY", [])
- where
-  bestGainAtt' :: Header -> Double -> Attribute -> Attribute
-  bestGainAtt'   []           mx att = att
-  bestGainAtt'   (att : atts) mx old
-   | g >= mx = bestGainAtt' atts g att
-   | g < mx  = bestGainAtt' atts mx old
-   where g = gain ds att c 
+bestGainAtt ds@(header, rows) c@(attName, attValues) = lookUp maxGain (zip gains atts)
+ where atts  = filter (/= c) header
+       gains = map (flip (gain (header, rows)) c)  atts
+       maxGain = maximum gains
 --------------------------------------------------------------------
 
 outlook :: Attribute
